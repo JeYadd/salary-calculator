@@ -128,9 +128,19 @@
                 
                 <div class="text-xs text-slate-400 uppercase tracking-wide mt-4 mb-2">Horaire</div>
                 
-                <div class="flex justify-between items-center py-2">
-                    <span class="text-slate-500">Net Horaire (35h/semaine)</span>
+                <div class="flex items-center justify-between py-2">
+                    <span class="text-slate-500">Net Horaire</span>
                     <span class="font-semibold text-slate-700" x-text="formatCurrency(netHoraireApresImpots)"></span>
+                </div>
+                
+                <div class="flex gap-2 mt-2">
+                    <template x-for="h in [35, 37, 39]" :key="h">
+                        <button @click="heuresHebdo = h; calculate()"
+                            :class="heuresHebdo === h ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                            class="flex-1 py-2 rounded-lg font-medium text-sm transition-all">
+                            <span x-text="h + 'h'"></span>
+                        </button>
+                    </template>
                 </div>
             </div>
 
@@ -160,8 +170,8 @@
                 netApresImpots: 0,
                 netMensuel: 0,
                 netMensuelApresImpots: 0,
-                netHoraire: 0,
                 netHoraireApresImpots: 0,
+                heuresHebdo: 35,
 
                 init() {
                     this.calculate();
@@ -211,7 +221,7 @@
                     this.impots = this.netAnnuel * (this.tauxImposition / 100);
                     this.netApresImpots = this.netAnnuel - this.impots;
                     this.netMensuelApresImpots = this.netApresImpots / 12;
-                    this.netHoraireApresImpots = this.netApresImpots / (52 * 35);
+                    this.netHoraireApresImpots = this.netApresImpots / (52 * this.heuresHebdo);
                 },
 
                 resetTauxAuto() {

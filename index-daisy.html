@@ -143,11 +143,21 @@
                                     <td colspan="2">Horaire</td>
                                 </tr>
                                 <tr>
-                                    <td>⏰ Net Horaire (35h/semaine)</td>
-                                    <td class="text-right font-semibold" x-text="formatCurrency(netHoraireApresImpots)"></td>
+                                    <td>⏰ Net Horaire</td>
+                                    <td class="text-right font-bold text-primary" x-text="formatCurrency(netHoraireApresImpots)"></td>
                                 </tr>
                             </tbody>
                         </table>
+                        
+                        <div class="flex gap-2 mt-3">
+                            <template x-for="h in [35, 37, 39]" :key="h">
+                                <button @click="heuresHebdo = h; calculate()"
+                                    :class="heuresHebdo === h ? 'btn btn-primary flex-1' : 'btn btn-outline btn-primary flex-1'"
+                                    class="btn btn-sm">
+                                    <span x-text="h + 'h'"></span>
+                                </button>
+                            </template>
+                        </div>
                     </div>
 
                     <div class="alert alert-warning mt-4">
@@ -190,8 +200,8 @@
                 netApresImpots: 0,
                 netMensuel: 0,
                 netMensuelApresImpots: 0,
-                netHoraire: 0,
                 netHoraireApresImpots: 0,
+                heuresHebdo: 35,
 
                 init() {
                     this.calculate();
@@ -241,7 +251,7 @@
                     this.impots = this.netAnnuel * (this.tauxImposition / 100);
                     this.netApresImpots = this.netAnnuel - this.impots;
                     this.netMensuelApresImpots = this.netApresImpots / 12;
-                    this.netHoraireApresImpots = this.netApresImpots / (52 * 35);
+                    this.netHoraireApresImpots = this.netApresImpots / (52 * this.heuresHebdo);
                 },
 
                 resetTauxAuto() {
