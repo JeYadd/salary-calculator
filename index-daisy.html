@@ -55,12 +55,18 @@
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Taux d'imposition sur le revenu</span>
-                            <span class="badge badge-primary badge-lg font-bold" x-text="tauxImposition + '%'"></span>
+                            <span class="badge badge-primary badge-lg font-bold" x-text="tauxImposition.toFixed(2) + '%'"></span>
                         </label>
                         <input type="range" x-model.number="tauxImposition" @input="calculate()" min="0" max="45"
                             step="0.5" class="range range-primary range-sm">
                         <div class="flex justify-between text-xs text-base-content/50 mt-1 px-1">
                             <span>0%</span><span>11%</span><span>23%</span><span>30%</span><span>45%</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="badge badge-ghost text-xs">Estimation auto : <span class="font-bold text-primary" x-text="tauxImpositionCalcule.toFixed(2) + '%'"></span></span>
+                            <button @click="useCalculatedTax()" class="btn btn-xs btn-outline btn-primary" :disabled="tauxImposition === tauxImpositionCalcule">
+                                Utiliser ce taux
+                            </button>
                         </div>
                     </div>
 
@@ -167,6 +173,7 @@
                 ],
                 tauxCharges: 25,
                 tauxImposition: 14,
+                tauxImpositionCalcule: 0,
                 charges: 0,
                 impots: 0,
                 netAnnuel: 0,
@@ -180,11 +187,46 @@
                     this.calculate();
                 },
 
+                calculerTauxImposition(revenuNet) {
+                    const bareme = [
+                        { seuil: 11297, taux: 0 },
+                        { seuil: 28797, taux: 11 },
+                        { seuil: 82341, taux: 23 },
+                        { seuil: 177106, taux: 30 },
+                        { seuil: Infinity, taux: 41 }
+                    ];
+                    
+                    let impotTotal = 0;
+                    let revenuRestant = revenuNet;
+                    let seuilPrecedent = 0;
+                    
+                    for (const tranche of bareme) {
+                        const partImposable = Math.min(revenuRestant, tranche.seuil - seuilPrecedent);
+                        if (partImposable <= 0) break;
+                        impotTotal += partImposable * (tranche.taux / 100);
+                        revenuRestant -= partImposable;
+                        seuilPrecedent = tranche.seuil;
+                    }
+                    
+                    if (revenuNet > 0) {
+                        return (impotTotal / revenuNet) * 100;
+                    }
+                    return 0;
+                },
+
+                useCalculatedTax() {
+                    this.tauxImposition = parseFloat(this.tauxImpositionCalcule.toFixed(2));
+                    this.calculate();
+                },
+
                 calculate() {
                     const status = this.statuses.find(s => s.id === this.selectedStatus);
                     this.tauxCharges = status ? status.taux : 22;
                     this.charges = this.brutAnnuel * (this.tauxCharges / 100);
                     this.netAnnuel = this.brutAnnuel - this.charges;
+                    
+                    this.tauxImpositionCalcule = this.calculerTauxImposition(this.netAnnuel);
+                    
                     this.impots = this.netAnnuel * (this.tauxImposition / 100);
                     this.netApresImpots = this.netAnnuel - this.impots;
                     this.netMensuelApresImpots = this.netApresImpots / 12;

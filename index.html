@@ -59,16 +59,25 @@
                 </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-semibold text-slate-600 mb-2">
-                    Taux d'imposition sur le revenu : <span class="text-purple-600 font-bold" x-text="tauxImposition + '%'"></span>
-                </label>
+            <div class="bg-slate-50 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-semibold text-slate-600">
+                        Taux d'imposition sur le revenu
+                    </label>
+                    <span class="text-purple-600 font-bold text-lg" x-text="tauxImposition.toFixed(2) + '%'"></span>
+                </div>
                 <input type="range" x-model.number="tauxImposition" @input="calculate()" min="0" max="45" step="0.5"
                     class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600">
                 <div class="flex justify-between text-xs text-slate-400 mt-1">
                     <span>0%</span>
                     <span>Moyenne ~14%</span>
                     <span>45%</span>
+                </div>
+                <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-200">
+                    <span class="text-xs text-slate-500">Estimation auto : <span class="font-bold text-purple-600" x-text="tauxImpositionCalcule.toFixed(2) + '%'"></span></span>
+                    <button @click="useCalculatedTax()" class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-lg hover:bg-purple-200 transition-colors" :class="{'opacity-50 cursor-not-allowed': tauxImposition === tauxImpositionCalcule}">
+                        Utiliser ce taux
+                    </button>
                 </div>
             </div>
 
@@ -91,7 +100,7 @@
                 </div>
                 
                 <div class="flex justify-between items-center py-3 border-b border-slate-200">
-                    <span class="text-slate-500">Impôt sur le revenu</span>
+                    <span class="text-slate-500">Impôt sur le revenu (<span x-text="tauxImposition.toFixed(2)"></span>%)</span>
                     <span class="font-semibold text-red-500" x-text="'- ' + formatCurrency(impots)"></span>
                 </div>
                 
@@ -131,6 +140,7 @@
                 ],
                 tauxCharges: 25,
                 tauxImposition: 14,
+                tauxImpositionCalcule: 0,
                 impots: 0,
                 netApresImpots: 0,
                 netMensuel: 0,
@@ -142,13 +152,50 @@
                     this.calculate();
                 },
 
+                calculerTauxImposition(revenuNet) {
+                    const bareme = [
+                        { seuil: 11297, taux: 0 },
+                        { seuil: 28797, taux: 11 },
+                        { seuil: 82341, taux: 23 },
+                        { seuil: 177106, taux: 30 },
+                        { seuil: Infinity, taux: 41 }
+                    ];
+                    
+                    let impotTotal = 0;
+                    let revenuRestant = revenuNet;
+                    let seuilPrecedent = 0;
+                    
+                    for (const tranche of bareme) {
+                        const partImposable = Math.min(revenuRestant, tranche.seuil - seuilPrecedent);
+                        if (partImposable <= 0) break;
+                        impotTotal += partImposable * (tranche.taux / 100);
+                        revenuRestant -= partImposable;
+                        seuilPrecedent = tranche.seuil;
+                    }
+                    
+                    if (revenuNet > 0) {
+                        return (impotTotal / revenuNet) * 100;
+                    }
+                    return 0;
+                },
+
+                useCalculatedTax() {
+                    this.tauxImposition = parseFloat(this.tauxImpositionCalcule.toFixed(2));
+                    this.calculate();
+                },
+
                 calculate() {
                     const status = this.statuses.find(s => s.id === this.selectedStatus);
                     this.tauxCharges = status ? status.taux : 22;
                     const charges = this.brutAnnuel * (this.tauxCharges / 100);
                     this.netAnnuel = this.brutAnnuel - charges;
-                    this.netMensuel = this.netAnnuel / 12;
-                    this.netHoraire = this.netAnnuel / (52 * 35);
+                    
+                    this.tauxImpositionCalcule = this.calculerTauxImposition(this.netAnnuel);
+                    
+                    this.impots = this.netAnnuel * (this.tauxImposition / 100);
+                    this.netApresImpots = this.netAnnuel - this.impots;
+                    this.netMensuelApresImpots = this.netApresImpots / 12;
+                    this.netHoraireApresImpots = this.netApresImpots / (52 * 35);
                 },
 
                 formatCurrency(value) {
