@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salaire Net Calculator</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+        }
+        .result-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] { -moz-appearance: textfield; }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div x-data="salaryCalculator()" x-init="init()" class="w-full max-w-lg">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-white mb-2 drop-shadow-lg">Calculateur de Salaire Net</h1>
+            <p class="text-white/80 text-lg">Estimez votre salaire net en quelques clics</p>
+        </div>
+
+        <div class="glass rounded-3xl shadow-2xl p-8 space-y-6">
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-2">Salaire Brut Annuel (€)</label>
+                <div class="relative">
+                    <input type="number" x-model.number="brutAnnuel" @input="calculate()" placeholder="Ex: 45000"
+                        class="w-full px-5 py-4 text-lg border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all outline-none">
+                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">€ / an</span>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-3">Statut</label>
+                <div class="grid grid-cols-3 gap-3">
+                    <template x-for="status in statuses" :key="status.id">
+                        <button @click="selectedStatus = status.id; calculate()"
+                            :class="selectedStatus === status.id 
+                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-300' 
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                            class="py-3 px-2 rounded-xl font-medium transition-all duration-200 text-sm">
+                            <span x-text="status.label"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <div class="result-card rounded-2xl p-6 space-y-4">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Récapitulatif</h3>
+                
+                <div class="flex justify-between items-center py-3 border-b border-slate-200">
+                    <span class="text-slate-500">Taux de charges sociales</span>
+                    <span class="font-semibold text-slate-700" x-text="tauxCharges + '%'"></span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-slate-200">
+                    <span class="text-slate-500">Brut Annuel</span>
+                    <span class="font-bold text-slate-800" x-text="formatCurrency(brutAnnuel)"></span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-slate-200">
+                    <span class="text-slate-500">Net Annuel</span>
+                    <span class="font-extrabold text-2xl text-purple-600" x-text="formatCurrency(netAnnuel)"></span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-slate-200">
+                    <span class="text-slate-500">Net Mensuel (brut/12)</span>
+                    <span class="font-bold text-xl text-slate-800" x-text="formatCurrency(netMensuel)"></span>
+                </div>
+                
+                <div class="flex justify-between items-center pt-3">
+                    <span class="text-slate-500">Net Horaire (35h)</span>
+                    <span class="font-semibold text-slate-700" x-text="formatCurrency(netHoraire)"></span>
+                </div>
+            </div>
+
+            <div class="bg-amber-50 rounded-xl p-4 border border-amber-200">
+                <p class="text-amber-800 text-sm">
+                    <span class="font-semibold">⚠️ Estimation indicative :</span> Les résultats sont approximatifs et varient selon la situation personnelle, les avantages, et les spécificités de l'entreprise.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function salaryCalculator() {
+            return {
+                brutAnnuel: null,
+                selectedStatus: 'cadre',
+                statuses: [
+                    { id: 'cadre', label: 'Cadre', taux: 25 },
+                    { id: 'etam', label: 'ETAM', taux: 22 },
+                    { id: 'nonCadre', label: 'Non-Cadre', taux: 21 }
+                ],
+                tauxCharges: 25,
+                netAnnuel: 0,
+                netMensuel: 0,
+                netHoraire: 0,
+
+                init() {
+                    this.calculate();
+                },
+
+                calculate() {
+                    const status = this.statuses.find(s => s.id === this.selectedStatus);
+                    this.tauxCharges = status ? status.taux : 22;
+                    const charges = this.brutAnnuel * (this.tauxCharges / 100);
+                    this.netAnnuel = this.brutAnnuel - charges;
+                    this.netMensuel = this.netAnnuel / 12;
+                    this.netHoraire = this.netAnnuel / (52 * 35);
+                },
+
+                formatCurrency(value) {
+                    if (!value || isNaN(value)) return '0,00 €';
+                    return new Intl.NumberFormat('fr-FR', {
+                        style: 'currency',
+                        currency: 'EUR',
+                        minimumFractionDigits: 2
+                    }).format(value);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
