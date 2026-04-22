@@ -147,12 +147,8 @@
                     this.tauxCharges = status ? status.taux : 22;
                     const charges = this.brutAnnuel * (this.tauxCharges / 100);
                     this.netAnnuel = this.brutAnnuel - charges;
-                    this.impots = this.netAnnuel * (this.tauxImposition / 100);
-                    this.netApresImpots = this.netAnnuel - this.impots;
                     this.netMensuel = this.netAnnuel / 12;
-                    this.netMensuelApresImpots = this.netApresImpots / 12;
                     this.netHoraire = this.netAnnuel / (52 * 35);
-                    this.netHoraireApresImpots = this.netApresImpots / (52 * 35);
                 },
 
                 formatCurrency(value) {
