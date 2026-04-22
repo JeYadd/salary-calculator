@@ -87,48 +87,49 @@
             <div class="result-card rounded-2xl p-6 space-y-4">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Récapitulatif</h3>
                 
-                <div class="flex justify-between items-center py-3 border-b border-slate-200">
-                    <span class="text-slate-500">Taux de charges sociales</span>
-                    <span class="font-semibold text-slate-700" x-text="tauxCharges + '%'"></span>
-                </div>
+                <div class="text-xs text-slate-400 uppercase tracking-wide mb-2">Annuel</div>
                 
-                <div class="flex justify-between items-center py-3 border-b border-slate-200">
+                <div class="flex justify-between items-center py-2 border-b border-slate-100">
                     <span class="text-slate-500">Brut Annuel</span>
-                    <span class="font-bold text-slate-800" x-text="formatCurrency(brutAnnuel)"></span>
+                    <span class="font-semibold text-slate-700" x-text="formatCurrency(brutAnnuel)"></span>
                 </div>
                 
-                <div class="flex justify-between items-center py-3 border-b border-slate-200">
+                <div class="flex justify-between items-center py-2 border-b border-slate-100">
                     <span class="text-slate-500">Net Annuel (après charges)</span>
-                    <span class="font-bold text-slate-800" x-text="formatCurrency(netAnnuel)"></span>
+                    <span class="font-semibold text-slate-700" x-text="formatCurrency(netAnnuel)"></span>
                 </div>
                 
-                <div class="flex justify-between items-center py-3 border-b border-slate-200">
-                    <span class="text-slate-500">Net Mensuel (avant impôt)</span>
-                    <span class="font-semibold text-slate-700" x-text="formatCurrency(netAnnuel / 12)"></span>
-                </div>
-                
-                <div class="flex justify-between items-center py-3 border-b border-slate-200">
+                <div class="flex justify-between items-center py-2 border-b border-slate-100">
                     <span class="text-slate-500">Impôt sur le revenu (<span x-text="tauxImposition.toFixed(2)"></span>%)</span>
                     <span class="font-semibold text-red-500" x-text="'- ' + formatCurrency(impots)"></span>
                 </div>
                 
-                <div class="flex justify-between items-center py-3 border-b border-slate-200">
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 bg-slate-50 -mx-4 px-4">
+                    <span class="font-semibold text-slate-700">Net après Impôts</span>
+                    <span class="font-bold text-slate-800" x-text="formatCurrency(netApresImpots)"></span>
+                </div>
+                
+                <div class="text-xs text-slate-400 uppercase tracking-wide mt-4 mb-2">Mensuel</div>
+                
+                <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                    <span class="text-slate-500">Net Mensuel (avant impôt)</span>
+                    <span class="font-semibold text-slate-700" x-text="formatCurrency(netAnnuel / 12)"></span>
+                </div>
+                
+                <div class="flex justify-between items-center py-2 border-b border-slate-100">
                     <span class="text-slate-500">Impôt Mensuel</span>
                     <span class="font-semibold text-red-400" x-text="'- ' + formatCurrency(impots / 12)"></span>
                 </div>
                 
                 <div class="flex justify-between items-center py-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl px-4 -mx-4">
-                    <span class="font-semibold text-slate-700">Net après Impôts</span>
-                    <span class="font-extrabold text-2xl text-purple-600" x-text="formatCurrency(netApresImpots)"></span>
+                    <span class="font-semibold text-slate-700">Net Mensuel (après impôt)</span>
+                    <span class="font-extrabold text-2xl text-purple-600" x-text="formatCurrency(netMensuelApresImpots)"></span>
                 </div>
                 
-                <div class="flex justify-between items-center py-3 border-b border-slate-200">
-                    <span class="text-slate-500">Net Mensuel (après impôt)</span>
-                    <span class="font-bold text-xl text-slate-800" x-text="formatCurrency(netMensuelApresImpots)"></span>
-                </div>
+                <div class="text-xs text-slate-400 uppercase tracking-wide mt-4 mb-2">Horaire</div>
                 
-                <div class="flex justify-between items-center pt-3">
-                    <span class="text-slate-500">Net Horaire (35h)</span>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-slate-500">Net Horaire (35h/semaine)</span>
                     <span class="font-semibold text-slate-700" x-text="formatCurrency(netHoraireApresImpots)"></span>
                 </div>
             </div>

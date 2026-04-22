@@ -97,57 +97,54 @@
                     </div>
 
                     <div class="overflow-x-auto mt-4">
-                        <table class="table table-zebra">
+                        <table class="table">
                             <thead>
-                                <tr>
+                                <tr class="text-xs uppercase text-base-content/50">
                                     <th>Type</th>
                                     <th class="text-right">Montant</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                <tr class="text-xs uppercase text-base-content/50">
+                                    <td colspan="2">Annuel</td>
+                                </tr>
                                 <tr>
-                                    <td class="flex items-center gap-2">🏢 Brut Annuel</td>
+                                    <td>🏢 Brut Annuel</td>
                                     <td class="text-right font-semibold" x-text="formatCurrency(brutAnnuel)"></td>
                                 </tr>
                                 <tr>
-                                    <td class="flex items-center gap-2">📉 Charges sociales (<span
-                                            x-text="tauxCharges"></span>%)</td>
-                                    <td class="text-right font-semibold text-error"
-                                        x-text="'- ' + formatCurrency(charges)"></td>
-                                </tr>
-                                <tr>
-                                    <td class="flex items-center gap-2">💳 Net après charges</td>
+                                    <td>💳 Net Annuel (après charges)</td>
                                     <td class="text-right font-semibold" x-text="formatCurrency(netAnnuel)"></td>
                                 </tr>
                                 <tr>
-                                    <td class="flex items-center gap-2">📅 Net Mensuel (avant impôt)</td>
+                                    <td>🏛️ Impôt (<span x-text="tauxImposition.toFixed(1)"></span>%)</td>
+                                    <td class="text-right font-semibold text-warning" x-text="'- ' + formatCurrency(impots)"></td>
+                                </tr>
+                                <tr class="bg-base-200">
+                                    <td class="font-semibold">✅ Net après Impôts</td>
+                                    <td class="text-right font-bold text-success" x-text="formatCurrency(netApresImpots)"></td>
+                                </tr>
+                                <tr class="text-xs uppercase text-base-content/50">
+                                    <td colspan="2">Mensuel</td>
+                                </tr>
+                                <tr>
+                                    <td>📅 Net Mensuel (avant impôt)</td>
                                     <td class="text-right font-semibold" x-text="formatCurrency(netAnnuel / 12)"></td>
                                 </tr>
                                 <tr>
-                                    <td class="flex items-center gap-2">🏛️ Impôt (<span
-                                            x-text="tauxImposition"></span>%)</td>
-                                    <td class="text-right font-semibold text-warning"
-                                        x-text="'- ' + formatCurrency(impots)"></td>
+                                    <td>💸 Impôt Mensuel</td>
+                                    <td class="text-right font-semibold text-warning" x-text="'- ' + formatCurrency(impots / 12)"></td>
+                                </tr>
+                                <tr class="bg-primary/10">
+                                    <td class="font-bold text-lg">✅ Net Mensuel (après impôt)</td>
+                                    <td class="text-right font-extrabold text-2xl text-primary" x-text="formatCurrency(netMensuelApresImpots)"></td>
+                                </tr>
+                                <tr class="text-xs uppercase text-base-content/50">
+                                    <td colspan="2">Horaire</td>
                                 </tr>
                                 <tr>
-                                    <td class="flex items-center gap-2">💸 Impôt Mensuel</td>
-                                    <td class="text-right font-semibold text-warning"
-                                        x-text="'- ' + formatCurrency(impots / 12)"></td>
-                                </tr>
-                                <tr class="active">
-                                    <td class="flex items-center gap-2 font-bold text-lg">✅ Net après impôts</td>
-                                    <td class="text-right font-bold text-2xl text-success"
-                                        x-text="formatCurrency(netApresImpots)"></td>
-                                </tr>
-                                <tr>
-                                    <td class="flex items-center gap-2">📅 Net Mensuel</td>
-                                    <td class="text-right font-semibold text-primary"
-                                        x-text="formatCurrency(netMensuelApresImpots)"></td>
-                                </tr>
-                                <tr>
-                                    <td class="flex items-center gap-2">⏰ Net Horaire (35h)</td>
-                                    <td class="text-right font-semibold" x-text="formatCurrency(netHoraireApresImpots)">
-                                    </td>
+                                    <td>⏰ Net Horaire (35h/semaine)</td>
+                                    <td class="text-right font-semibold" x-text="formatCurrency(netHoraireApresImpots)"></td>
                                 </tr>
                             </tbody>
                         </table>
