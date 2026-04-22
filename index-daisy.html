@@ -30,7 +30,7 @@
                             <span class="label-text-alt text-primary font-bold"
                                 x-text="formatCurrency(brutAnnuel)"></span>
                         </label>
-                        <input type="number" x-model.number="brutAnnuel" @input="calculate()" placeholder="Ex: 45000"
+                        <input type="number" x-model.number="brutAnnuel" @input="tauxModifieManuellement = false; calculate()" placeholder="Ex: 45000"
                             class="input input-lg input-primary input-bordered w-full text-lg">
                         <label class="label">
                             <span class="label-text-alt text-base-content/50">Saisissez votre salaire brut annuel en
