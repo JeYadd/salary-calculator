@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="business">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salaire Net Calculator - DaisyUI</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/full.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen bg-base-200">
+    <div x-data="salaryCalculator()" class="min-h-screen flex items-center justify-center p-4 py-8">
+        <div class="w-full max-w-2xl">
+            <div class="text-center mb-8">
+                <h1 class="text-5xl font-bold text-primary mb-2">💰 Calculateur de Salaire Net</h1>
+                <p class="text-base-content/70 text-lg">Estimez votre salaire net après impôts en temps réel</p>
+            </div>
+
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text text-base font-semibold">Salaire Brut Annuel</span>
+                            <span class="label-text-alt text-primary font-bold" x-text="formatCurrency(brutAnnuel)"></span>
+                        </label>
+                        <input type="number" x-model.number="brutAnnuel" @input="calculate()" placeholder="Ex: 45000"
+                            class="input input-lg input-primary input-bordered w-full text-lg">
+                        <label class="label">
+                            <span class="label-text-alt text-base-content/50">Saisissez votre salaire brut annuel en euros</span>
+                        </label>
+                    </div>
+
+                    <div class="divider">STATUT</div>
+
+                    <div role="group" class="grid grid-cols-3 gap-2">
+                        <template x-for="status in statuses" :key="status.id">
+                            <button @click="selectedStatus = status.id; calculate()"
+                                :class="selectedStatus === status.id ? 'btn btn-primary' : 'btn btn-outline btn-primary'"
+                                class="btn">
+                                <span x-text="status.label"></span>
+                            </button>
+                        </template>
+                    </div>
+
+                    <div class="divider">TAUX D'IMPOSITION</div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Taux d'imposition sur le revenu</span>
+                            <span class="badge badge-primary badge-lg font-bold" x-text="tauxImposition + '%'"></span>
+                        </label>
+                        <input type="range" x-model.number="tauxImposition" @input="calculate()" min="0" max="45" step="0.5"
+                            class="range range-primary range-sm">
+                        <div class="flex justify-between text-xs text-base-content/50 mt-1 px-1">
+                            <span>0%</span><span>11%</span><span>23%</span><span>30%</span><span>45%</span>
+                        </div>
+                    </div>
+
+                    <div class="divider">RÉSULTATS</div>
+
+                    <div class="stats stats-vertical lg:stats-horizontal shadow w-full bg-base-200">
+                        <div class="stat">
+                            <div class="stat-title">Charges sociales</div>
+                            <div class="stat-value text-error text-xl" x-text="tauxCharges + '%'"></div>
+                            <div class="stat-desc text-error" x-text="'- ' + formatCurrency(charges)"></div>
+                        </div>
+                        
+                        <div class="stat">
+                            <div class="stat-title">Impôt sur le revenu</div>
+                            <div class="stat-value text-warning text-xl" x-text="tauxImposition + '%'"></div>
+                            <div class="stat-desc text-warning" x-text="'- ' + formatCurrency(impots)"></div>
+                        </div>
+                        
+                        <div class="stat">
+                            <div class="stat-title">Net annuel</div>
+                            <div class="stat-value text-success text-2xl" x-text="formatCurrency(netApresImpots)"></div>
+                            <div class="stat-desc">≈ <span x-text="formatCurrency(netMensuelApresImpots)"></span>/mois</div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto mt-4">
+                        <table class="table table-zebra">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th class="text-right">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="flex items-center gap-2">🏢 Brut Annuel</td>
+                                    <td class="text-right font-semibold" x-text="formatCurrency(brutAnnuel)"></td>
+                                </tr>
+                                <tr>
+                                    <td class="flex items-center gap-2">📉 Charges sociales (<span x-text="tauxCharges"></span>%)</td>
+                                    <td class="text-right font-semibold text-error" x-text="'- ' + formatCurrency(charges)"></td>
+                                </tr>
+                                <tr>
+                                    <td class="flex items-center gap-2">💳 Net après charges</td>
+                                    <td class="text-right font-semibold" x-text="formatCurrency(netAnnuel)"></td>
+                                </tr>
+                                <tr>
+                                    <td class="flex items-center gap-2">🏛️ Impôt (<span x-text="tauxImposition"></span>%)</td>
+                                    <td class="text-right font-semibold text-warning" x-text="'- ' + formatCurrency(impots)"></td>
+                                </tr>
+                                <tr class="active">
+                                    <td class="flex items-center gap-2 font-bold text-lg">✅ Net après impôts</td>
+                                    <td class="text-right font-bold text-2xl text-success" x-text="formatCurrency(netApresImpots)"></td>
+                                </tr>
+                                <tr>
+                                    <td class="flex items-center gap-2">📅 Net Mensuel</td>
+                                    <td class="text-right font-semibold text-primary" x-text="formatCurrency(netMensuelApresImpots)"></td>
+                                </tr>
+                                <tr>
+                                    <td class="flex items-center gap-2">⏰ Net Horaire (35h)</td>
+                                    <td class="text-right font-semibold" x-text="formatCurrency(netHoraireApresImpots)"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-warning mt-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span>Estimation indicative - variable selon votre situation personnelle</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-6">
+                <a href="index.html" class="btn btn-outline btn-primary">← Version classique</a>
+            </div>
+
+            <footer class="footer footer-center p-4 text-base-content/50 mt-8">
+                <div>
+                    <p>Propulsé par Alpine.js & DaisyUI</p>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        function salaryCalculator() {
+            return {
+                brutAnnuel: 45000,
+                selectedStatus: 'cadre',
+                statuses: [
+                    { id: 'cadre', label: 'Cadre', taux: 25 },
+                    { id: 'etam', label: 'ETAM', taux: 22 },
+                    { id: 'nonCadre', label: 'Non-Cadre', taux: 21 }
+                ],
+                tauxCharges: 25,
+                tauxImposition: 14,
+                charges: 0,
+                impots: 0,
+                netAnnuel: 0,
+                netApresImpots: 0,
+                netMensuel: 0,
+                netMensuelApresImpots: 0,
+                netHoraire: 0,
+                netHoraireApresImpots: 0,
+
+                init() {
+                    this.calculate();
+                },
+
+                calculate() {
+                    const status = this.statuses.find(s => s.id === this.selectedStatus);
+                    this.tauxCharges = status ? status.taux : 22;
+                    this.charges = this.brutAnnuel * (this.tauxCharges / 100);
+                    this.netAnnuel = this.brutAnnuel - this.charges;
+                    this.impots = this.netAnnuel * (this.tauxImposition / 100);
+                    this.netApresImpots = this.netAnnuel - this.impots;
+                    this.netMensuelApresImpots = this.netApresImpots / 12;
+                    this.netHoraireApresImpots = this.netApresImpots / (52 * 35);
+                },
+
+                formatCurrency(value) {
+                    if (!value || isNaN(value)) return '0,00 €';
+                    return new Intl.NumberFormat('fr-FR', {
+                        style: 'currency',
+                        currency: 'EUR',
+                        minimumFractionDigits: 2
+                    }).format(value);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
