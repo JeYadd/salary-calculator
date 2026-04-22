@@ -120,10 +120,19 @@
                                     <td class="text-right font-semibold" x-text="formatCurrency(netAnnuel)"></td>
                                 </tr>
                                 <tr>
+                                    <td class="flex items-center gap-2">📅 Net Mensuel (avant impôt)</td>
+                                    <td class="text-right font-semibold" x-text="formatCurrency(netAnnuel / 12)"></td>
+                                </tr>
+                                <tr>
                                     <td class="flex items-center gap-2">🏛️ Impôt (<span
                                             x-text="tauxImposition"></span>%)</td>
                                     <td class="text-right font-semibold text-warning"
                                         x-text="'- ' + formatCurrency(impots)"></td>
+                                </tr>
+                                <tr>
+                                    <td class="flex items-center gap-2">💸 Impôt Mensuel</td>
+                                    <td class="text-right font-semibold text-warning"
+                                        x-text="'- ' + formatCurrency(impots / 12)"></td>
                                 </tr>
                                 <tr class="active">
                                     <td class="flex items-center gap-2 font-bold text-lg">✅ Net après impôts</td>
