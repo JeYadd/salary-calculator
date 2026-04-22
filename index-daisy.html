@@ -62,11 +62,8 @@
                         <div class="flex justify-between text-xs text-base-content/50 mt-1 px-1">
                             <span>0%</span><span>11%</span><span>23%</span><span>30%</span><span>45%</span>
                         </div>
-                        <div class="flex justify-between items-center mt-2">
-                            <span class="badge badge-ghost text-xs">Estimation auto : <span class="font-bold text-primary" x-text="tauxImpositionCalcule.toFixed(2) + '%'"></span></span>
-                            <button @click="useCalculatedTax()" class="btn btn-xs btn-outline btn-primary" :disabled="tauxImposition === tauxImpositionCalcule">
-                                Utiliser ce taux
-                            </button>
+                        <div class="mt-2">
+                            <span class="badge badge-ghost text-xs">Estimation basée sur le net imposable (net - 10%) - Taux moyen</span>
                         </div>
                     </div>
 
@@ -196,8 +193,10 @@
                         { seuil: Infinity, taux: 41 }
                     ];
                     
+                    const revenuImposable = revenuNet * 0.9;
+                    
                     let impotTotal = 0;
-                    let revenuRestant = revenuNet;
+                    let revenuRestant = revenuImposable;
                     let seuilPrecedent = 0;
                     
                     for (const tranche of bareme) {
@@ -214,11 +213,6 @@
                     return 0;
                 },
 
-                useCalculatedTax() {
-                    this.tauxImposition = parseFloat(this.tauxImpositionCalcule.toFixed(2));
-                    this.calculate();
-                },
-
                 calculate() {
                     const status = this.statuses.find(s => s.id === this.selectedStatus);
                     this.tauxCharges = status ? status.taux : 22;
@@ -226,6 +220,7 @@
                     this.netAnnuel = this.brutAnnuel - this.charges;
                     
                     this.tauxImpositionCalcule = this.calculerTauxImposition(this.netAnnuel);
+                    this.tauxImposition = parseFloat(this.tauxImpositionCalcule.toFixed(2));
                     
                     this.impots = this.netAnnuel * (this.tauxImposition / 100);
                     this.netApresImpots = this.netAnnuel - this.impots;
