@@ -59,6 +59,19 @@
                 </div>
             </div>
 
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-2">
+                    Taux d'imposition sur le revenu : <span class="text-purple-600 font-bold" x-text="tauxImposition + '%'"></span>
+                </label>
+                <input type="range" x-model.number="tauxImposition" @input="calculate()" min="0" max="45" step="0.5"
+                    class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600">
+                <div class="flex justify-between text-xs text-slate-400 mt-1">
+                    <span>0%</span>
+                    <span>Moyenne ~14%</span>
+                    <span>45%</span>
+                </div>
+            </div>
+
             <div class="result-card rounded-2xl p-6 space-y-4">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Récapitulatif</h3>
                 
@@ -73,18 +86,28 @@
                 </div>
                 
                 <div class="flex justify-between items-center py-3 border-b border-slate-200">
-                    <span class="text-slate-500">Net Annuel</span>
-                    <span class="font-extrabold text-2xl text-purple-600" x-text="formatCurrency(netAnnuel)"></span>
+                    <span class="text-slate-500">Net Annuel (après charges)</span>
+                    <span class="font-bold text-slate-800" x-text="formatCurrency(netAnnuel)"></span>
                 </div>
                 
                 <div class="flex justify-between items-center py-3 border-b border-slate-200">
-                    <span class="text-slate-500">Net Mensuel (brut/12)</span>
-                    <span class="font-bold text-xl text-slate-800" x-text="formatCurrency(netMensuel)"></span>
+                    <span class="text-slate-500">Impôt sur le revenu</span>
+                    <span class="font-semibold text-red-500" x-text="'- ' + formatCurrency(impots)"></span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl px-4 -mx-4">
+                    <span class="font-semibold text-slate-700">Net après Impôts</span>
+                    <span class="font-extrabold text-2xl text-purple-600" x-text="formatCurrency(netApresImpots)"></span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-slate-200">
+                    <span class="text-slate-500">Net Mensuel (après impôt)</span>
+                    <span class="font-bold text-xl text-slate-800" x-text="formatCurrency(netMensuelApresImpots)"></span>
                 </div>
                 
                 <div class="flex justify-between items-center pt-3">
                     <span class="text-slate-500">Net Horaire (35h)</span>
-                    <span class="font-semibold text-slate-700" x-text="formatCurrency(netHoraire)"></span>
+                    <span class="font-semibold text-slate-700" x-text="formatCurrency(netHoraireApresImpots)"></span>
                 </div>
             </div>
 
@@ -107,9 +130,13 @@
                     { id: 'nonCadre', label: 'Non-Cadre', taux: 21 }
                 ],
                 tauxCharges: 25,
-                netAnnuel: 0,
+                tauxImposition: 14,
+                impots: 0,
+                netApresImpots: 0,
                 netMensuel: 0,
+                netMensuelApresImpots: 0,
                 netHoraire: 0,
+                netHoraireApresImpots: 0,
 
                 init() {
                     this.calculate();
@@ -120,8 +147,12 @@
                     this.tauxCharges = status ? status.taux : 22;
                     const charges = this.brutAnnuel * (this.tauxCharges / 100);
                     this.netAnnuel = this.brutAnnuel - charges;
+                    this.impots = this.netAnnuel * (this.tauxImposition / 100);
+                    this.netApresImpots = this.netAnnuel - this.impots;
                     this.netMensuel = this.netAnnuel / 12;
+                    this.netMensuelApresImpots = this.netApresImpots / 12;
                     this.netHoraire = this.netAnnuel / (52 * 35);
+                    this.netHoraireApresImpots = this.netApresImpots / (52 * 35);
                 },
 
                 formatCurrency(value) {
